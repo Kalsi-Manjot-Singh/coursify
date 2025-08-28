@@ -85,11 +85,11 @@ The server will run on:
 ## 📝 TODO / Roadmap
 
 ### Phase 1: Backend (Express + MongoDB)
-- [ ] Setup MongoDB connection (Mongoose)
-- [ ] Create User model (student/admin roles)
+- [x] Setup MongoDB connection (Mongoose)
+- [x] Create User model (student/admin roles)
 - [ ] Implement user registration & login (with JWT)
 - [ ] Protect routes with authentication middleware
-- [ ] Build Course model (title, description, lessons, etc.)
+- [x] Build Course model (title, description, lessons, etc.)
 - [ ] Add CRUD APIs for courses (admin only)
 - [ ] Add API for students to enroll in courses
 - [ ] API for fetching enrolled courses per student
