@@ -87,7 +87,7 @@ The server will run on:
 ### Phase 1: Backend (Express + MongoDB)
 - [x] Setup MongoDB connection (Mongoose)
 - [x] Create User model (student/admin roles)
-- [ ] Implement user registration & login (with JWT)
+- [x] Implement user registration & login (with JWT)
 - [ ] Protect routes with authentication middleware
 - [x] Build Course model (title, description, lessons, etc.)
 - [ ] Add CRUD APIs for courses (admin only)
