@@ -4,40 +4,35 @@ import { z } from 'zod';
 import bcrypt from 'bcrypt';
 import generateTokens from "../utils/generateToken.js";
 import User from '../models/User.js';
+import AppError from '../utils/AppError.js';
+
+// !TODO: Zod validation for login inputs | refresh token implementaion | Rate Limiting | zod email validation 
 
 // User Signup
 export const signup = async (req, res) => {
+  try {
+    // Preprocess to normalize empty strings to undefined
+    const preprocessEmptyString = (val) => val === "" ? undefined : val;
 
-  // Preprocess to normalize empty strings to undefined
-const preprocessEmptyString = (val) => val === "" ? undefined : val;
-
-  const schema = z.object({
-    name: z.string().min(1, "Name is required"),
-    email: z.email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters long"),
-    role: z.preprocess(preprocessEmptyString,
-      z.enum(['student', 'teacher']).optional()
-  ).default('student')
+    const schema = z.object({
+      name: z.string().min(1, "Name is required"),
+      email: z.email("Invalid email address"),
+      password: z.string().min(6, "Password must be at least 6 characters long"),
+      role: z.preprocess(preprocessEmptyString,
+        z.enum(['student', 'teacher']).optional()
+    ).default('student')
   });
   
   const result = schema.safeParse(req.body);
   
   if(!result.success) {
-    console.error(result.error)
-    return res.status(400).json({
-      success: false,
-      message: "Bad Request"
-    });
+    throw new AppError("Validation Error", 400, true, result.error.issues);
   }
   const { name, email, password, role } = result.data;
 
-  try {
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
-      return res.status(400).json({
-        success: false, 
-        message: "Email already in use" 
-      });
+      throw new AppError("A user already exists with this email", 400);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -63,11 +58,8 @@ const preprocessEmptyString = (val) => val === "" ? undefined : val;
       }
     });
   } catch (error) {
-    console.error(error)
-    res.status(500).json({
-      success: false,
-      message: "Server Error"
-    });
+    if (error instanceof AppError) throw error;
+    throw new AppError("Server Error", 500, false);
   }
 }
 
@@ -79,10 +71,7 @@ export const login = async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid Credentials"
-      });
+      throw new AppError("Invalid Credentials", 401);
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
@@ -101,16 +90,11 @@ export const login = async (req, res) => {
       }
       })
     } else {
-      res.status(401).json({
-        success: false,
-        message: "Invalid Credentials"
-      })
+      throw new AppError("Invalid Credentials", 401);
     }
   } catch (error){
-    console.error(error)
-    res.status(500).json({
-      success: false,
-      message: "Server Error"
-    });
+    console.error(error);
+    if (error instanceof AppError) throw error;
+    throw new AppError("Server Error", 500, false);
   }
 }
