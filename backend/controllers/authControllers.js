@@ -5,30 +5,18 @@ import bcrypt from 'bcrypt';
 import generateTokens from "../utils/generateToken.js";
 import User from '../models/User.js';
 import AppError from '../utils/AppError.js';
+import { signupSchema, loginSchema } from '../validations/authSchemas.js';
 
-// !TODO: Zod validation for login inputs | refresh token implementaion | Rate Limiting | zod email validation 
+// !TODO: refresh token implementaion | Rate Limiting 
 
 // User Signup
 export const signup = async (req, res) => {
   try {
-    // Preprocess to normalize empty strings to undefined
-    const preprocessEmptyString = (val) => val === "" ? undefined : val;
-
-    const schema = z.object({
-      name: z.string().min(1, "Name is required"),
-      email: z.email("Invalid email address"),
-      password: z.string().min(6, "Password must be at least 6 characters long"),
-      role: z.preprocess(preprocessEmptyString,
-        z.enum(['student', 'teacher']).optional()
-    ).default('student')
-  });
-  
-  const result = schema.safeParse(req.body);
-  
-  if(!result.success) {
-    throw new AppError("Validation Error", 400, true, result.error.issues);
-  }
-  const { name, email, password, role } = result.data;
+    const result = signupSchema.safeParse(req.body);
+    if(!result.success) {
+      throw new AppError("Validation Error", 400, true, result.error.issues);
+    }
+    const { name, email, password, role } = result.data;
 
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
@@ -65,18 +53,22 @@ export const signup = async (req, res) => {
 
 // User Login
 export const login = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const result = loginSchema.safeParse(req.body);
+    if(!result.success) {
+      throw new AppError("Validation Error", 400, true, result.error.issues);
+    }
+    const { email, password } = result.data;
+
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
       throw new AppError("Invalid Credentials", 401);
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if(passwordMatch) {
+    if(isPasswordValid) {
       const { accessToken } = generateTokens(user);
       return res.status(200).json({
         success: true,

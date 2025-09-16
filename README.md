@@ -88,6 +88,8 @@ The server will run on:
 - [x] Setup MongoDB connection (Mongoose)
 - [x] Create User model (student/admin roles)
 - [x] Implement user registration & login (with JWT)
+- [x] Centralize Zod Validation
+- [ ] Make the validateRequest middleware to the make controllers leaner 
 - [ ] Protect routes with authentication middleware
 - [x] Build Course model (title, description, lessons, etc.)
 - [ ] Add CRUD APIs for courses (admin only)
