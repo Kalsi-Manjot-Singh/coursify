@@ -90,7 +90,8 @@ The server will run on:
 - [x] Implement user registration & login (with JWT)
 - [x] Centralize Zod Validation
 - [ ] Make the validateRequest middleware to the make controllers leaner 
-- [ ] Protect routes with authentication middleware
+- [x] Protect routes with authentication middleware
+- [x] Implement role based access control 
 - [x] Build Course model (title, description, lessons, etc.)
 - [ ] Add CRUD APIs for courses (admin only)
 - [ ] Add API for students to enroll in courses

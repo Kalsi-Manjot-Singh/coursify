@@ -1,10 +1,13 @@
 import { Router } from "express";
 import { signup, login } from "../controllers/authControllers.js"
+import { authMiddleware, roleCheck  } from "../middlewares/authMiddleware.js";
 const userRouter = Router();
 
 userRouter.post('/signup', signup);
 
 userRouter.post('/login', login);
+
+userRouter.use(authMiddleware);
 
 userRouter.get("/", (req, res) => {
   res.send("User dashboard");

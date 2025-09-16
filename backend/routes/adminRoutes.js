@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { authMiddleware, roleCheck } from "../middlewares/authMiddleware.js";
 const adminRouter = Router();
 
 adminRouter.post("/signup", (req, res) => {
@@ -9,27 +10,29 @@ adminRouter.post("/login", (req, res) => {
   res.send("Admin login");
 });
 
+adminRouter.use(authMiddleware, roleCheck("admin"));
+
 adminRouter.get("/", (req, res) => {
   res.send("Admin dashboard");
 });
 
-adminRouter.get("/myCourses", (req, res) => {
+adminRouter.get("/myCourses", authMiddleware, (req, res) => {
   res.send("course created by the admin");
 });
 
-adminRouter.post("/course", (req, res) => {
+adminRouter.post("/course", authMiddleware, (req, res) => {
   res.send("create a course");
 });
 
-adminRouter.get("/profile", (req, res) => {
+adminRouter.get("/profile", authMiddleware, (req, res) => {
   res.send("Admin profile");
 });
 
-adminRouter.put("/profile", (req, res) => {
+adminRouter.put("/profile", authMiddleware, (req, res) => {
   res.send("Update user profile");
 });
 
-adminRouter.delete("/profile", (req, res) => {
+adminRouter.delete("/profile", authMiddleware, (req, res) => {
   res.send("Delete user profile");
 });
 
